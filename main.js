@@ -14,6 +14,7 @@ var audio1;
 var pcscore = 0;
 
 var leftWristy = 0;
+var leftWristscore = 0;
 //ball x and y and speedx speed y and radius
 var ball = {
     x:350/2,
@@ -22,13 +23,16 @@ var ball = {
     dx:3,
     dy:3
 }
+function preload() {
+  bounce = loadSound("bounce.mp3")
+}
 
 function setup(){
   var canvas = createCanvas(700, 600);
   canvas.center()
     ;
   video = createCapture(VIDEO);
-  video.size(700, 600);
+  video.size(600, 600);
   video.hide();
 
   poseNet = ml5.poseNet(video, modelLoaded);
@@ -42,6 +46,7 @@ function modelLoaded() {
 function getResults(results) {
   if (results.length > 0) {
     leftWristy = results[0].pose.leftWrist.y
+    leftWristscore = results[0].pose.keypoints[9].score
   }
 }
 
@@ -64,7 +69,7 @@ function draw(){
    //left paddle
    fill(255,255,255);
     stroke(255,255,255);
-    strokeWeight(0.5);
+  strokeWeight(0.5);
    paddle1Y = leftWristy; 
    rect(paddle1X,paddle1Y,paddle1,paddle1Height,100);
    
@@ -136,7 +141,8 @@ function move(){
    }
   if (ball.x-2.5*ball.r/2< 0){
   if (ball.y >= paddle1Y&& ball.y <= paddle1Y + paddle1Height) {
-    ball.dx = -ball.dx+0.5; 
+    ball.dx = -ball.dx + 0.5;
+    bounce.play()
   }
   else{
     pcscore++;
@@ -175,10 +181,4 @@ function models(){
 
 //this function help to not go te paddle out of canvas
 function paddleInCanvas(){
-  if(leftWristy + paddle1Height > height){
-    leftWristy = height - paddle1Height;
-  }
-  if(leftWristy < 0){
-    leftWristy =0;
-  }  
 }
